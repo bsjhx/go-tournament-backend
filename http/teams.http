@@ -1,0 +1,11 @@
+### Get all teams
+GET http://localhost:8080/teams
+Content-Type: application/json
+
+### Add team
+POST http://localhost:8080/teams
+Content-Type: application/json
+
+{
+  "name": "Some team3"
+}
