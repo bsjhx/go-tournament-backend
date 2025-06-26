@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bsjhx/tournament-backend/internal/platform/db"
 	"github.com/bsjhx/tournament-backend/internal/platform/http"
 	"github.com/bsjhx/tournament-backend/internal/team"
 	"github.com/gin-gonic/gin"
@@ -8,9 +9,12 @@ import (
 )
 
 func main() {
+	db.RunMigrations()
+	database := db.Init()
+	teamService := team.NewService(database)
+
 	router := gin.Default()
 
-	teamService := team.NewService()
 	http.RegisterTeamRoutes(router, teamService)
 
 	// healthcheck

@@ -1,0 +1,1 @@
+DELETE FROM teams t WHERE t.name = 'Polska';

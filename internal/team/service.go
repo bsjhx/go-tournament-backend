@@ -1,22 +1,26 @@
 package team
 
+import (
+	"gorm.io/gorm"
+)
+
 type Service struct {
-	teams []Team
+	db *gorm.DB
 }
 
-func NewService() *Service {
-	return &Service{}
+func NewService(db *gorm.DB) *Service {
+	db.AutoMigrate(&Team{})
+	return &Service{db: db}
 }
 
 func (s *Service) AddTeam(name string) Team {
-	team := Team{
-		ID:   len(s.teams) + 1,
-		Name: name,
-	}
-	s.teams = append(s.teams, team)
+	team := Team{Name: name}
+	s.db.Create(&team)
 	return team
 }
 
 func (s *Service) ListTeams() []Team {
-	return s.teams
+	var teams []Team
+	s.db.Find(&teams)
+	return teams
 }
