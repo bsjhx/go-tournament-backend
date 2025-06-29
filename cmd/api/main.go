@@ -5,10 +5,15 @@ import (
 	"github.com/bsjhx/tournament-backend/internal/platform/http"
 	"github.com/bsjhx/tournament-backend/internal/team"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"log"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+
 	db.RunMigrations()
 	database := db.Init()
 	teamService := team.NewService(database)

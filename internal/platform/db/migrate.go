@@ -2,34 +2,58 @@ package db
 
 import (
 	"database/sql"
+	"github.com/pressly/goose/v3"
 	"log"
+	"os"
+	"path/filepath"
 
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
-
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 )
 
 func RunMigrations() {
+	log.Println("Running database migrations...")
+
 	db, err := sql.Open("sqlite3", "tournament.db")
 	if err != nil {
-		log.Fatalf("Failed to open DB: %v", err)
+		log.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
 	}
 
-	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		log.Fatalf("Failed to set goose dialect: %v", err)
+	}
+
+	// Standard migrations
+	if err := runMigrationsFromPath(db, "migrations"); err != nil {
+		log.Fatalf("Standard migrations failed: %v", err)
+	}
+
+	// Private migrations
+	privatePath := os.Getenv("PRIVATE_MIGRATIONS_PATH")
+	if privatePath != "" {
+		if err := runMigrationsFromPath(db, privatePath); err != nil {
+			log.Fatalf("Private migrations failed: %v", err)
+		}
+	}
+
+	log.Println("Migrations completed successfully")
+}
+
+func runMigrationsFromPath(db *sql.DB, path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		log.Printf("Migration path does not exist: %s (skipping)", path)
+		return nil
+	}
+
+	absPath, err := filepath.Abs(path)
 	if err != nil {
-		log.Fatalf("Failed to create DB driver: %v", err)
+		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
-		"sqlite3", driver)
-	if err != nil {
-		log.Fatalf("Failed to init migration: %v", err)
-	}
-
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("Migration failed: %v", err)
-	}
+	log.Printf("Applying migrations from: %s", absPath)
+	return goose.Up(db, absPath)
 }
