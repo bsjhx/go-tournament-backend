@@ -7,5 +7,7 @@ POST http://localhost:8080/teams
 Content-Type: application/json
 
 {
-  "name": "Some team2"
+  "name": "Germany",
+  "country_id": 2,
+  "is_national_team": true
 }

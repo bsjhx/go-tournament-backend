@@ -9,18 +9,41 @@ type Service struct {
 }
 
 func NewService(db *gorm.DB) *Service {
-	db.AutoMigrate(&Team{})
 	return &Service{db: db}
 }
 
-func (s *Service) AddTeam(name string) Team {
-	team := Team{Name: name}
-	s.db.Create(&team)
-	return team
+func (s *Service) AddTeam(dto CreateTeamDTO) (Team, error) {
+	team := Team{
+		Name:           dto.Name,
+		CountryID:      dto.CountryID,
+		IsNationalTeam: dto.IsNationalTeam,
+	}
+
+	if err := s.db.Create(&team).Error; err != nil {
+		return Team{}, err
+	}
+	return team, nil
 }
 
-func (s *Service) ListTeams() []Team {
+func (s *Service) ListTeams() ([]ShortTeamDTO, error) {
 	var teams []Team
-	s.db.Find(&teams)
-	return teams
+	if err := s.db.Find(&teams).Error; err != nil {
+		return nil, err
+	}
+
+	var result []ShortTeamDTO
+	for _, t := range teams {
+		result = append(result, toTeamDTO(t))
+	}
+
+	return result, nil
+}
+
+func toTeamDTO(t Team) ShortTeamDTO {
+	return ShortTeamDTO{
+		ID:             t.ID,
+		Name:           t.Name,
+		CountryID:      t.CountryID,
+		IsNationalTeam: t.IsNationalTeam,
+	}
 }
