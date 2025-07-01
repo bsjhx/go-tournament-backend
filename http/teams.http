@@ -2,6 +2,10 @@
 GET http://localhost:8080/teams
 Content-Type: application/json
 
+### Gte team by id
+GET http://localhost:8080/teams/3
+Content-Type: application/json
+
 ### Add team
 POST http://localhost:8080/teams
 Content-Type: application/json

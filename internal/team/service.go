@@ -1,6 +1,7 @@
 package team
 
 import (
+	"errors"
 	"gorm.io/gorm"
 )
 
@@ -23,6 +24,18 @@ func (s *Service) AddTeam(dto CreateTeamDTO) (Team, error) {
 		return Team{}, err
 	}
 	return team, nil
+}
+
+func (s *Service) GetTeam(id int64) (ShortTeamDTO, error) {
+	var team Team
+	if err := s.db.First(&team, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ShortTeamDTO{}, nil
+		}
+		return ShortTeamDTO{}, err
+	}
+
+	return toTeamDTO(team), nil
 }
 
 func (s *Service) ListTeams() ([]ShortTeamDTO, error) {
