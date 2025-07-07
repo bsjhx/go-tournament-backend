@@ -1,4 +1,4 @@
-package team
+package model
 
 type Country struct {
 	ID         int64  `gorm:"primaryKey;autoIncrement"`
@@ -16,4 +16,8 @@ type Team struct {
 	IsNationalTeam bool   `gorm:"not null"`
 
 	Country Country `gorm:"foreignKey:CountryID"`
+}
+
+func TestFunction() {
+
 }

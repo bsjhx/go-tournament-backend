@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/bsjhx/tournament-backend/internal/platform/db"
-	"github.com/bsjhx/tournament-backend/internal/platform/http"
-	"github.com/bsjhx/tournament-backend/internal/team"
+	"github.com/bsjhx/tournament-backend/internal/team/controllers"
+	"github.com/bsjhx/tournament-backend/internal/team/services"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
@@ -14,13 +14,13 @@ func main() {
 		log.Println("No .env file found")
 	}
 
-	db.RunMigrations()
 	database := db.Init()
-	teamService := team.NewService(database)
+	db.RunMigrations()
+	teamService := services.NewTeamService(database)
 
 	router := gin.Default()
 
-	http.RegisterTeamRoutes(router, teamService)
+	controllers.RegisterTeamController(router, teamService)
 
 	// healthcheck
 	router.GET("/health", func(c *gin.Context) {

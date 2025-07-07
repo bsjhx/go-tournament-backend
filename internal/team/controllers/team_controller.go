@@ -1,4 +1,4 @@
-package http
+package controllers
 
 import (
 	"github.com/bsjhx/tournament-backend/internal/team/model"
@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func RegisterTeamRoutes(r *gin.Engine, service *services.TeamService) {
+func RegisterTeamController(r *gin.Engine, service *services.TeamService) {
 	r.POST("/teams", func(c *gin.Context) {
 		var dto model.CreateTeamDTO
 		if err := c.ShouldBindJSON(&dto); err != nil {

@@ -28,7 +28,7 @@ func RunMigrations() {
 	}
 
 	// Standard migrations
-	if err := runMigrationsFromPath(db, "migrations"); err != nil {
+	if err := runMigrationsFromPath(db, getMigrationDir()); err != nil {
 		log.Fatalf("Standard migrations failed: %v", err)
 	}
 
@@ -56,4 +56,22 @@ func runMigrationsFromPath(db *sql.DB, path string) error {
 
 	log.Printf("Applying migrations from: %s", absPath)
 	return goose.Up(db, absPath)
+}
+
+func getMigrationDir() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return filepath.Join(dir, "migrations")
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			panic("could not find project root (go.mod)")
+		}
+		dir = parent
+	}
 }

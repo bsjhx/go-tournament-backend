@@ -1,4 +1,4 @@
-package team
+package model
 
 type CreateTeamDTO struct {
 	Name           string `json:"name" binding:"required"`
